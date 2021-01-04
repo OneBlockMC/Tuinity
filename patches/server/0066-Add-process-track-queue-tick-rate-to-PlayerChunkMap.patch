@@ -1,0 +1,53 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:41:50 +0000
+Subject: [PATCH] Add process track queue tick rate to PlayerChunkMap
+
+
+diff --git a/src/main/java/net/minecraft/server/PlayerChunkMap.java b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+index 8286039c4e2db33b7782b9af13e6ac8f7a2ff484..40229a0a4d34dd9cf0172f4e974e95389cea3e18 100644
+--- a/src/main/java/net/minecraft/server/PlayerChunkMap.java
++++ b/src/main/java/net/minecraft/server/PlayerChunkMap.java
+@@ -57,6 +57,10 @@ import org.spigotmc.AsyncCatcher;
+ 
+ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+ 
++    // OB start
++    private static int PROCESS_TRACK_QUEUE_TICK_RATE = 1;
++    // OB end
++
+     private static final Logger LOGGER = LogManager.getLogger();
+     public static final int GOLDEN_TICKET = 33 + ChunkStatus.b();
+     // Paper start - faster copying
+@@ -304,9 +308,17 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     public final com.tuinity.tuinity.chunk.SingleThreadChunkRegionManager<RegionData> dataRegionManager;
+     // Tuiniy end
+ 
++    // OB start
++    private int processTrackQueueTick;
++    // OB end
++
+     private final java.util.concurrent.ExecutorService lightThread;
+     public PlayerChunkMap(WorldServer worldserver, Convertable.ConversionSession convertable_conversionsession, DataFixer datafixer, DefinedStructureManager definedstructuremanager, Executor executor, IAsyncTaskHandler<Runnable> iasynctaskhandler, ILightAccess ilightaccess, ChunkGenerator chunkgenerator, WorldLoadListener worldloadlistener, Supplier<WorldPersistentData> supplier, int i, boolean flag) {
+         super(new File(convertable_conversionsession.a(worldserver.getDimensionKey()), "region"), datafixer, flag);
++        // OB start
++        this.processTrackQueueTick = 0;
++        // OB end
++
+         //this.visibleChunks = this.updatingChunks.clone(); // Paper - no more cloning
+         this.pendingUnload = new Long2ObjectLinkedOpenHashMap();
+         this.loadedChunks = new LongOpenHashSet();
+@@ -2137,7 +2149,12 @@ public class PlayerChunkMap extends IChunkLoader implements PlayerChunk.d {
+     protected void g() {
+         // Paper start - optimized tracker
+         if (true) {
+-            this.processTrackQueue();
++            // OB start
++            if (this.processTrackQueueTick % PROCESS_TRACK_QUEUE_TICK_RATE == 0) {
++                this.processTrackQueue();
++            }
++            this.processTrackQueueTick++;
++            // OB end
+             return;
+         }
+         // Paper end - optimized tracker

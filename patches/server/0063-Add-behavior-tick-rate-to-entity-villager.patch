@@ -1,0 +1,47 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:23:44 +0000
+Subject: [PATCH] Add behavior tick rate to entity villager
+
+
+diff --git a/src/main/java/net/minecraft/server/EntityVillager.java b/src/main/java/net/minecraft/server/EntityVillager.java
+index 9b35c8ad9efe9241fe442bc6ef2e9f62def386d8..5fc134ad8b0af32e36aa1e4700b0398c9fd7a7b9 100644
+--- a/src/main/java/net/minecraft/server/EntityVillager.java
++++ b/src/main/java/net/minecraft/server/EntityVillager.java
+@@ -31,6 +31,10 @@ import org.bukkit.event.entity.VillagerReplenishTradeEvent;
+ 
+ public class EntityVillager extends EntityVillagerAbstract implements ReputationHandler, VillagerDataHolder {
+ 
++    // OB start
++    private static int BEHAVIOR_MOB_TICK_RATE = 1;
++    // OB end
++
+     private static final DataWatcherObject<VillagerData> br = DataWatcher.a(EntityVillager.class, DataWatcherRegistry.q);
+     public static final Map<Item, Integer> bp = ImmutableMap.of(Items.BREAD, 4, Items.POTATO, 1, Items.CARROT, 1, Items.BEETROOT, 1);
+     private static final Set<Item> bs = ImmutableSet.of(Items.BREAD, Items.POTATO, Items.CARROT, Items.WHEAT, Items.WHEAT_SEEDS, Items.BEETROOT, new Item[]{Items.BEETROOT_SEEDS});
+@@ -59,8 +63,13 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+         return villageplacetype == VillagePlaceType.s;
+     });
+ 
++    // OB start
++    private int behaviorTick;
++    // OB end
++
+     public EntityVillager(EntityTypes<? extends EntityVillager> entitytypes, World world) {
+         this(entitytypes, world, VillagerType.PLAINS);
++        this.behaviorTick = 0;
+     }
+ 
+     public EntityVillager(EntityTypes<? extends EntityVillager> entitytypes, World world, VillagerType villagertype) {
+@@ -166,7 +175,10 @@ public class EntityVillager extends EntityVillagerAbstract implements Reputation
+     protected void mobTick() { mobTick(false); }
+     protected void mobTick(boolean inactive) {
+         this.world.getMethodProfiler().enter("villagerBrain");
+-        if (!inactive) this.getBehaviorController().a((WorldServer) this.world, this); // CraftBukkit - decompile error // Paper
++        // OB start
++        if (!inactive && this.behaviorTick % BEHAVIOR_MOB_TICK_RATE == 0) this.getBehaviorController().a((WorldServer) this.world, this); // CraftBukkit - decompile error // Paper
++        this.behaviorTick++;
++        // OB end
+         this.world.getMethodProfiler().exit();
+         if (this.bF) {
+             this.bF = false;

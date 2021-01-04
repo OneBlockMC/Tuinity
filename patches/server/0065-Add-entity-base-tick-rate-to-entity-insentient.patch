@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:30:16 +0000
+Subject: [PATCH] Add entity base tick rate to entity insentient
+
+
+diff --git a/src/main/java/net/minecraft/server/EntityInsentient.java b/src/main/java/net/minecraft/server/EntityInsentient.java
+index 7b32a1fb79dcae355a8d95f3a8aa4284ec5d10db..fbe0d6bff2f9c9168d8ff348e9c153995f5899cf 100644
+--- a/src/main/java/net/minecraft/server/EntityInsentient.java
++++ b/src/main/java/net/minecraft/server/EntityInsentient.java
+@@ -25,6 +25,11 @@ import org.bukkit.event.entity.EntityUnleashEvent.UnleashReason;
+ public abstract class EntityInsentient extends EntityLiving {
+ 
+     private static final DataWatcherObject<Byte> b = DataWatcher.a(EntityInsentient.class, DataWatcherRegistry.a);
++
++    // OB start
++    private static int ENTITY_BASE_TICK_RATE = 1;
++    // OB end
++
+     public int e;
+     protected int f;
+     protected ControllerLook lookController;
+@@ -56,6 +61,10 @@ public abstract class EntityInsentient extends EntityLiving {
+ 
+     public boolean aware = true; // CraftBukkit
+ 
++    // OB start
++    private int entityBaseTick;
++    // OB end
++
+     protected EntityInsentient(EntityTypes<? extends EntityInsentient> entitytypes, World world) {
+         super(entitytypes, world);
+         this.bp = NonNullList.a(2, ItemStack.b);
+@@ -82,6 +91,8 @@ public abstract class EntityInsentient extends EntityLiving {
+         // CraftBukkit start - default persistance to type's persistance value
+         this.persistent = !isTypeNotPersistent(0);
+         // CraftBukkit end
++
++        this.entityBaseTick = 0;
+     }
+ 
+     protected void initPathfinder() {}
+@@ -242,7 +253,13 @@ public abstract class EntityInsentient extends EntityLiving {
+ 
+     @Override
+     public void entityBaseTick() {
+-        super.entityBaseTick();
++        // OB start
++        if (this.entityBaseTick % ENTITY_BASE_TICK_RATE == 0) {
++            super.entityBaseTick();
++        }
++        this.entityBaseTick++;
++        // OB end
++
+         this.world.getMethodProfiler().enter("mobBaseTick");
+         if (this.isAlive() && this.random.nextInt(1000) < this.e++) {
+             this.m();
