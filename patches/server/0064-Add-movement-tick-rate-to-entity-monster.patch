@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:27:21 +0000
+Subject: [PATCH] Add movement tick rate to entity monster
+
+
+diff --git a/src/main/java/net/minecraft/server/EntityMonster.java b/src/main/java/net/minecraft/server/EntityMonster.java
+index 74426693c47b6437a4597ddd1b961aae79d7a866..9c5b8c8e90f5d0faa9b18df7afc6e0c1e533147d 100644
+--- a/src/main/java/net/minecraft/server/EntityMonster.java
++++ b/src/main/java/net/minecraft/server/EntityMonster.java
+@@ -5,10 +5,20 @@ import java.util.function.Predicate;
+ 
+ public abstract class EntityMonster extends EntityCreature implements IMonster {
+ 
++    // OB start
++    private static int MOVEMENT_TICK_RATE = 1;
++    // OB end
++
+     public org.bukkit.craftbukkit.entity.CraftMonster getBukkitMonster() { return (org.bukkit.craftbukkit.entity.CraftMonster) super.getBukkitEntity(); } // Paper
++
++    // OB start
++    private int movementTick;
++    // OB end
++
+     protected EntityMonster(EntityTypes<? extends EntityMonster> entitytypes, World world) {
+         super(entitytypes, world);
+         this.f = 5;
++        this.movementTick = 0;
+     }
+ 
+     @Override
+@@ -20,7 +30,13 @@ public abstract class EntityMonster extends EntityCreature implements IMonster {
+     public void movementTick() {
+         this.dA();
+         this.eQ();
+-        super.movementTick();
++
++        // OB start
++        if (this.movementTick % MOVEMENT_TICK_RATE == 0) {
++            super.movementTick();
++        }
++        this.movementTick++;
++        // OB end
+     }
+ 
+     protected void eQ() {

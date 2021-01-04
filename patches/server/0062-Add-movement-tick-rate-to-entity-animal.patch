@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:16:10 +0000
+Subject: [PATCH] Add movement tick rate to entity animal
+
+
+diff --git a/src/main/java/net/minecraft/server/EntityAnimal.java b/src/main/java/net/minecraft/server/EntityAnimal.java
+index bba343542e7e6fa83ec802d97b4c139bb210ab28..15c30a882681a4c0c936b4b89c602fcd45dbc848 100644
+--- a/src/main/java/net/minecraft/server/EntityAnimal.java
++++ b/src/main/java/net/minecraft/server/EntityAnimal.java
+@@ -10,14 +10,23 @@ import org.bukkit.event.entity.EntityEnterLoveModeEvent;
+ 
+ public abstract class EntityAnimal extends EntityAgeable {
+ 
++    // OB start
++    private static int MOVEMENT_TICK_RATE = 1;
++    // OB end
++
+     public int loveTicks;
+     public UUID breedCause;
+     public ItemStack breedItem; // CraftBukkit - Add breedItem variable
+ 
++    // OB start
++    private int movementTick;
++    // OB end
++
+     protected EntityAnimal(EntityTypes<? extends EntityAnimal> entitytypes, World world) {
+         super(entitytypes, world);
+         this.a(PathType.DANGER_FIRE, 16.0F);
+         this.a(PathType.DAMAGE_FIRE, -1.0F);
++        this.movementTick = 0;
+     }
+ 
+     @Override
+@@ -31,7 +40,13 @@ public abstract class EntityAnimal extends EntityAgeable {
+ 
+     @Override
+     public void movementTick() {
+-        super.movementTick();
++        // OB start
++        if (this.movementTick % MOVEMENT_TICK_RATE == 0) {
++            super.movementTick();
++        }
++        this.movementTick++;
++        // OB end
++
+         if (this.getAge() != 0) {
+             this.loveTicks = 0;
+         }

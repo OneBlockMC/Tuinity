@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Joseph <joseph42@live.co.uk>
+Date: Mon, 4 Jan 2021 03:47:24 +0000
+Subject: [PATCH] Add spawn mobs tick rate to SpawnerCreature
+
+
+diff --git a/src/main/java/net/minecraft/server/SpawnerCreature.java b/src/main/java/net/minecraft/server/SpawnerCreature.java
+index 661ad8f8e67046211e001ea40d97660d7c88f8e5..bdd509b331e2692d217ca3a27ab9dcbce71e779a 100644
+--- a/src/main/java/net/minecraft/server/SpawnerCreature.java
++++ b/src/main/java/net/minecraft/server/SpawnerCreature.java
+@@ -20,6 +20,11 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+ 
+ public final class SpawnerCreature {
+ 
++    // OB start
++    private static int SPAWN_MOBS_TICK_RATE = 1;
++    private static int spawnMobsTick = 0;
++    // OB end
++
+     private static final Logger LOGGER = LogManager.getLogger();
+     private static final int b = (int) Math.pow(17.0D, 2.0D);
+     private static final EnumCreatureType[] c = (EnumCreatureType[]) Stream.of(EnumCreatureType.values()).filter((enumcreaturetype) -> {
+@@ -149,17 +154,20 @@ public final class SpawnerCreature {
+             // Paper end
+ 
+             // Paper start - per player mob spawning
+-            if ((flag || !enumcreaturetype.d()) && (flag1 || enumcreaturetype.d()) && (flag2 || !enumcreaturetype.e()) && difference > 0) {
++            // OB start
++            if ((flag || !enumcreaturetype.d()) && (flag1 || enumcreaturetype.d()) && (flag2 || !enumcreaturetype.e()) && difference > 0 && spawnMobsTick % SPAWN_MOBS_TICK_RATE == 0) {
+                 // CraftBukkit end
+                 int spawnCount = spawnMobs(enumcreaturetype, worldserver, chunk, (entitytypes, blockposition, ichunkaccess) -> {
+-                    return spawnercreature_d.a(entitytypes, blockposition, ichunkaccess);
+-                }, (entityinsentient, ichunkaccess) -> {
+-                    spawnercreature_d.a(entityinsentient, ichunkaccess);
+-                },
+-                difference, worldserver.paperConfig.perPlayerMobSpawns ? worldserver.getChunkProvider().playerChunkMap::updatePlayerMobTypeMap : null);
++                            return spawnercreature_d.a(entitytypes, blockposition, ichunkaccess);
++                        }, (entityinsentient, ichunkaccess) -> {
++                            spawnercreature_d.a(entityinsentient, ichunkaccess);
++                        },
++                        difference, worldserver.paperConfig.perPlayerMobSpawns ? worldserver.getChunkProvider().playerChunkMap::updatePlayerMobTypeMap : null);
+                 spawnercreature_d.getEntityCountsByType().mergeInt(enumcreaturetype, spawnCount, Integer::sum);
+                 // Paper end - per player mob spawning
+             }
++            spawnMobsTick++;
++            // OB end
+         }
+ 
+         worldserver.timings.mobSpawn.stopTiming(); // Spigot
